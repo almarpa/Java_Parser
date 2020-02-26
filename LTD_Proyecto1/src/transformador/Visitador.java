@@ -3,6 +3,7 @@ package transformador;
 import java.util.LinkedList;
 import java.util.List;
 
+import iter2rec.transformation.loop.Do;
 import iter2rec.transformation.loop.Loop;
 import iter2rec.transformation.loop.While;
 import iter2rec.transformation.variable.LoopVariables;
@@ -22,6 +23,7 @@ import japa.parser.ast.expr.MethodCallExpr;
 import japa.parser.ast.expr.NameExpr;
 import japa.parser.ast.expr.VariableDeclarationExpr;
 import japa.parser.ast.stmt.BlockStmt;
+import japa.parser.ast.stmt.DoStmt;
 import japa.parser.ast.stmt.ExpressionStmt;
 import japa.parser.ast.stmt.IfStmt;
 import japa.parser.ast.stmt.ReturnStmt;
@@ -80,7 +82,84 @@ public class Visitador extends ModifierVisitorAdapter<Object>
 		return newMethodDeclaration;
 	}
 	
-	// Visitador de sentencias "while"
+	/**
+	 * Visitador de sentencias DO WHILE
+	 */
+	public Node visit(DoStmt doStmt, Object args) {
+
+		String nameMethod = "method_" + contador++;
+		
+		// Creamos un objeto Loop que sirve para examinar bucles
+		Loop loop = new Do(null, null, doStmt);
+		// El objeto Loop nos calcula la lista de variables declaradas en el mtodo y usadas en el bucle (la interseccin)
+		List<Variable> variables = loop.getUsedVariables(methodDeclaration);
+		// Creamos un objeto LoopVariables que sirve para convertir la lista de variables en lista de argumentos y parmetros
+		LoopVariables loopVariables = new LoopVariables(variables);
+		// El objeto LoopVariables nos calcula la lista de argumentos del mtodo 
+		List<Expression> arguments = loopVariables.getArgs();		
+		
+		// Creamos el tipo que devolverá el método
+		ClassOrInterfaceType objType = new ClassOrInterfaceType();
+		objType.setName("Object");
+		
+		// Asignamos el tipo anterior a un array de longitud 1
+		ReferenceType refType = new ReferenceType();
+		refType.setArrayCount(1);
+		refType.setType(objType);
+		
+		// Creamos la declaración del método
+		MethodDeclaration newMethod = new MethodDeclaration();
+		newMethod.setType(refType);
+		newMethod.setModifiers(methodDeclaration.getModifiers());
+		newMethod.setName(nameMethod);
+		newMethod.setParameters(loopVariables.getParameters());
+		
+		// Añadimos el body del do while al principio del metodo
+		
+		BlockStmt cuerpoMetodo = new BlockStmt();
+		
+		List<Statement> stmtsMetodo = new LinkedList<Statement>();
+		
+		Statement x = doStmt.getBody();
+		
+		if (x instanceof BlockStmt)
+			stmtsMetodo.addAll(((BlockStmt)x).getStmts());
+		else
+			stmtsMetodo.add(x);
+		
+		MethodCallExpr callMethod = new MethodCallExpr();
+		callMethod.setName(nameMethod);
+		callMethod.setArgs(arguments);
+		
+		ReturnStmt returnIf = new ReturnStmt();
+		returnIf.setExpr(callMethod);
+		
+		List<Statement> cuerpoIfMetodo = new LinkedList<Statement>();
+		
+		cuerpoIfMetodo.add(returnIf);
+		
+		BlockStmt blockIf = new BlockStmt();
+		blockIf.setStmts(cuerpoIfMetodo);
+		
+		// Creamos el if recursivo dentro del nuevo método
+		IfStmt recIf = new IfStmt(doStmt.getCondition(), blockIf, null);
+		
+		stmtsMetodo.add(recIf);
+		
+		cuerpoMetodo.setStmts(stmtsMetodo);
+		
+		newMethod.setBody(cuerpoMetodo);
+		
+		//Añadimos el nuevo método a la clase actual
+		this.classDeclaration.getMembers().add(newMethod);
+		
+		return this.visit(new IfStmt(), args);
+		
+	}
+	
+	/**
+	 * Visitador de sentencias WHILE
+	 */	
 	public Node visit(WhileStmt whileStmt, Object args)
 	{
 		/**************************/

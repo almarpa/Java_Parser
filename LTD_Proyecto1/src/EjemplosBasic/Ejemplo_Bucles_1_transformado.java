@@ -6,27 +6,35 @@ public class Ejemplo_Bucles_1 {
         System.out.println("Empieza bucle WHILE:");
         int x = 1;
         if (x <= 10) {
-            Object[] result = method1(x);
+            Object[] result = metodo_1(x);
             x = (Integer) result[0];
         }
         System.out.println();
         if (x > 0) x++;
         if (x > 0) {
-            Object[] result = method2(x);
+            Object[] result = metodo_2(x);
             x = (Integer) result[0];
         }
     }
 
-    void method1(int x) {
+    public static Object[] metodo_1(int x) {
         {
             System.out.print(" " + x);
             x++;
         }
+        if (x <= 10) {
+            return metodo_1(x);
+        }
+        return new Object[] { x };
     }
 
-    void method2(int x) {
+    public static Object[] metodo_2(int x) {
         {
             x++;
         }
+        if (x > 0) {
+            return metodo_2(x);
+        }
+        return new Object[] { x };
     }
 }
