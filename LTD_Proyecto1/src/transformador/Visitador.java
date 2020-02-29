@@ -85,98 +85,44 @@ public class Visitador extends ModifierVisitorAdapter<Object>
 	/**
 	 * Visitador de sentencias DO WHILE
 	 */
-	public Node visit(DoStmt doStmt, Object args) {
+	public Node visit(DoStmt doStmt, Object args) 
+	{
+		BlockStmt blockStmt = new BlockStmt();
+		List<Statement> statements = new LinkedList<Statement>();
+		statements.add(doStmt.getBody());
+		statements.add(whileToIf(doStmt,args));
 
-		String nameMethod = "method_" + contador++;
-		
-		// Creamos un objeto Loop que sirve para examinar bucles
-		Loop loop = new Do(null, null, doStmt);
-		// El objeto Loop nos calcula la lista de variables declaradas en el mtodo y usadas en el bucle (la interseccin)
-		List<Variable> variables = loop.getUsedVariables(methodDeclaration);
-		// Creamos un objeto LoopVariables que sirve para convertir la lista de variables en lista de argumentos y parmetros
-		LoopVariables loopVariables = new LoopVariables(variables);
-		// El objeto LoopVariables nos calcula la lista de argumentos del mtodo 
-		List<Expression> arguments = loopVariables.getArgs();		
-		
-		// Creamos el tipo que devolverá el método
-		ClassOrInterfaceType objType = new ClassOrInterfaceType();
-		objType.setName("Object");
-		
-		// Asignamos el tipo anterior a un array de longitud 1
-		ReferenceType refType = new ReferenceType();
-		refType.setArrayCount(1);
-		refType.setType(objType);
-		
-		// Creamos la declaración del método
-		MethodDeclaration newMethod = new MethodDeclaration();
-		newMethod.setType(refType);
-		newMethod.setModifiers(methodDeclaration.getModifiers());
-		newMethod.setName(nameMethod);
-		newMethod.setParameters(loopVariables.getParameters());
-		
-		// Añadimos el body del do while al principio del metodo
-		
-		BlockStmt cuerpoMetodo = new BlockStmt();
-		
-		List<Statement> stmtsMetodo = new LinkedList<Statement>();
-		
-		Statement x = doStmt.getBody();
-		
-		if (x instanceof BlockStmt)
-			stmtsMetodo.addAll(((BlockStmt)x).getStmts());
-		else
-			stmtsMetodo.add(x);
-		
-		MethodCallExpr callMethod = new MethodCallExpr();
-		callMethod.setName(nameMethod);
-		callMethod.setArgs(arguments);
-		
-		ReturnStmt returnIf = new ReturnStmt();
-		returnIf.setExpr(callMethod);
-		
-		List<Statement> cuerpoIfMetodo = new LinkedList<Statement>();
-		
-		cuerpoIfMetodo.add(returnIf);
-		
-		BlockStmt blockIf = new BlockStmt();
-		blockIf.setStmts(cuerpoIfMetodo);
-		
-		// Creamos el if recursivo dentro del nuevo método
-		IfStmt recIf = new IfStmt(doStmt.getCondition(), blockIf, null);
-		
-		stmtsMetodo.add(recIf);
-		
-		cuerpoMetodo.setStmts(stmtsMetodo);
-		
-		newMethod.setBody(cuerpoMetodo);
-		
-		//Añadimos el nuevo método a la clase actual
-		this.classDeclaration.getMembers().add(newMethod);
-		
-		return this.visit(new IfStmt(), args);
-		
+		blockStmt.setStmts(statements);
+
+		return blockStmt;
 	}
 	
 	/**
 	 * Visitador de sentencias WHILE
 	 */	
-	public Node visit(WhileStmt whileStmt, Object args)
+	public Node visit(WhileStmt whileStmt, Object args){
+		
+		return whileToIf(whileStmt, args);
+	}
+	
+	public IfStmt whileToIf(Statement stmt, Object args)
 	{
 		/**************************/
 		/******** LLAMADOR ********/
 		/**************************/		
-		
 		// Creamos un objeto Loop que sirve para examinar bucles
-		Loop loop = new While(null, null, whileStmt);
+		Loop loop = null;
+		if(stmt instanceof DoStmt) {
+			loop = new Do(null, null, stmt);
+		}else {
+			loop = new While(null, null, stmt);
+		}
 		// El objeto Loop nos calcula la lista de variables declaradas en el mŽtodo y usadas en el bucle (la intersecci—n)
 		List<Variable> variables = loop.getUsedVariables(methodDeclaration);
 		// Creamos un objeto LoopVariables que sirve para convertir la lista de variables en lista de argumentos y par‡metros
 		LoopVariables loopVariables = new LoopVariables(variables);
 		// El objeto LoopVariables nos calcula la lista de argumentos del mŽtodo 
 		List<Expression> arguments = loopVariables.getArgs();
-		
-		//while(***condition***)
-		Expression condition = whileStmt.getCondition();
 		
 		//Object[] result = this.metodo_x()
 		MethodCallExpr methodCall = new MethodCallExpr();
@@ -211,18 +157,26 @@ public class Visitador extends ModifierVisitorAdapter<Object>
 		ExpressionStmt exprStmt = new ExpressionStmt();
 		exprStmt.setExpression(varDecExpr);
 		
-		//IF
+		//NUEVO IF
 		IfStmt newIf = new IfStmt();
-		newIf.setCondition(whileStmt.getCondition());
+		Expression condition = null;
+		if(stmt instanceof DoStmt) {
+			DoStmt doStmt = (DoStmt) stmt;
+			condition = doStmt.getCondition();
+		} else {
+			WhileStmt whileStmt = (WhileStmt) stmt;
+			condition = whileStmt.getCondition();
+		}
+		newIf.setCondition(condition);
 		
-		//IF
+		//NUEVO IF
 		BlockStmt bloqueIf = new BlockStmt();
 
 		//Lista de statements del nuevo IF
 		List<Statement> cuerpoIf = new LinkedList<Statement>();
 		cuerpoIf.add(exprStmt);
 		
-		//IF
+		//NUEVO IF
 		for (int i = 0; i < variables.size(); i++) {
 					
 			ArrayAccessExpr expr = new ArrayAccessExpr();
@@ -257,8 +211,8 @@ public class Visitador extends ModifierVisitorAdapter<Object>
 		
 		//Creamos el If recursivo 
 		IfStmt ifRecursivo = new IfStmt();
-		ifRecursivo.setCondition(whileStmt.getCondition());
-		ifRecursivo.setThenStmt(blockWrapper(returnIf));
+		ifRecursivo.setCondition(condition);
+		ifRecursivo.setThenStmt(returnIf); //TODO
 		
 		//Return Stmt Method
 		ReturnStmt returnMetodo = new ReturnStmt();
@@ -275,8 +229,13 @@ public class Visitador extends ModifierVisitorAdapter<Object>
 		
 		//Creamos una lista de statements y la rellenamos
 		List<Statement> cuerpoMetodoStmts = new LinkedList<Statement>();
-
-		cuerpoMetodoStmts.add(whileStmt.getBody());				
+		if(stmt instanceof DoStmt) {
+			DoStmt doStmt = (DoStmt) stmt;
+			cuerpoMetodoStmts.add(doStmt.getBody()); 	
+		} else {
+			WhileStmt whileStmt = (WhileStmt) stmt;
+			cuerpoMetodoStmts.add(whileStmt.getBody()); 
+		}		
 		cuerpoMetodoStmts.add(ifRecursivo);
 		cuerpoMetodoStmts.add(returnMetodo);
 		
