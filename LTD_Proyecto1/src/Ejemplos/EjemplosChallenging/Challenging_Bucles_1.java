@@ -1,4 +1,4 @@
-package EjemplosChallenging;
+package Ejemplos.EjemplosChallenging;
 
 public class Challenging_Bucles_1 {
 	public static void main(String[] args)

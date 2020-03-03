@@ -1,4 +1,4 @@
-package EjemplosAdvanced;
+package Ejemplos.EjemplosAdvanced;
 
 public class Evaluation_Bucles_6_trans {
 
@@ -19,8 +19,10 @@ public class Evaluation_Bucles_6_trans {
     }
 
     public static Object[] metodo_1(int x) {
-        System.out.print(" " + x);
-        x++;
+        {
+            System.out.print(" " + x);
+            x++;
+        }
         if (x <= 10) return metodo_1(x);
         return new Object[] { x };
     }
@@ -50,15 +52,19 @@ class Clase2 {
     }
 
     public Object[] metodo_2(int x) {
-        System.out.print(" " + x);
-        x++;
+        {
+            System.out.print(" " + x);
+            x++;
+        }
         if (x <= 10) return metodo_2(x);
         return new Object[] { x };
     }
 
     public Object[] metodo_3(int x) {
-        System.out.print(" " + x);
-        x++;
+        {
+            System.out.print(" " + x);
+            x++;
+        }
         if (x <= 10) return metodo_3(x);
         return new Object[] { x };
     }

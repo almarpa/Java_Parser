@@ -1,4 +1,4 @@
-package EjemplosAdvanced;
+package Ejemplos.EjemplosAdvanced;
 
 public class Evaluation_Bucles_3_trans {
 
@@ -11,23 +11,25 @@ public class Evaluation_Bucles_3_trans {
     }
 
     public static Object[] metodo_1(int x) {
-        System.out.println("1");
-        if (x > 50) {
-            x--;
-            System.out.println("2");
-        } else if (x > 0) {
-            System.out.println("3");
-            if (x > 100) {
-                x++;
-                System.out.println("4");
-            } else {
+        {
+            System.out.println("1");
+            if (x > 50) {
                 x--;
-                System.out.println("5");
-                if (x > 1) {
-                    Object[] result = metodo_2(x);
-                    x = (Integer) result[0];
+                System.out.println("2");
+            } else if (x > 0) {
+                System.out.println("3");
+                if (x > 100) {
+                    x++;
+                    System.out.println("4");
+                } else {
+                    x--;
+                    System.out.println("5");
+                    if (x > 1) {
+                        Object[] result = metodo_2(x);
+                        x = (Integer) result[0];
+                    }
+                    System.out.println("7");
                 }
-                System.out.println("7");
             }
         }
         if (x > 0) return metodo_1(x);
@@ -35,10 +37,12 @@ public class Evaluation_Bucles_3_trans {
     }
 
     public static Object[] metodo_2(int x) {
-        x--;
-        System.out.println("6");
-        Exception e = new ArrayIndexOutOfBoundsException();
-        throw e;
+        {
+            x--;
+            System.out.println("6");
+            Exception e = new ArrayIndexOutOfBoundsException();
+            throw e;
+        }
         if (x > 1) return metodo_2(x);
         return new Object[] { x };
     }

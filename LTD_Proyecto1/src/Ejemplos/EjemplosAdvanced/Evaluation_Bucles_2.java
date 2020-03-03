@@ -1,4 +1,4 @@
-package EjemplosAdvanced;
+package Ejemplos.EjemplosAdvanced;
 
 // Este código tiene un bucle infinito.
 

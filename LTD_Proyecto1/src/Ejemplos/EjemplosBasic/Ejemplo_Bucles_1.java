@@ -1,4 +1,4 @@
-package EjemplosBasic;
+package Ejemplos.EjemplosBasic;
 
 public class Ejemplo_Bucles_1 {
 

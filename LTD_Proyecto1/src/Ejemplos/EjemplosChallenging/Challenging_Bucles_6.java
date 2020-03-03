@@ -1,4 +1,4 @@
-package EjemplosChallenging;
+package Ejemplos.EjemplosChallenging;
 
 public class Challenging_Bucles_6 {
 	public static void main(String[] args) throws Exception
@@ -12,13 +12,13 @@ public class Challenging_Bucles_6 {
 		// BUCLE WHILE (sin anidamiento)
 		System.out.println("Empieza bucle WHILE:");		
 		
-		try {  // EL BUCLE ESTÁ DENTRO DE UN TRY-CATCH
+		try {  // EL BUCLE EST� DENTRO DE UN TRY-CATCH
 			while (x<=10)
 			{
 				x++; 
 				x/=0;
 			}
-		}catch(Exception E) {System.out.println("Ha habido una excepción");}
+		}catch(Exception E) {System.out.println("Ha habido una excepcion");}
 		return 42;
 	}	
 }

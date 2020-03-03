@@ -1,4 +1,4 @@
-package EjemplosBasic;
+package Ejemplos.EjemplosBasic;
 
 public class Ejemplo_Bucles_1_trans {
 
@@ -13,8 +13,10 @@ public class Ejemplo_Bucles_1_trans {
     }
 
     public static Object[] metodo_1(int x) {
-        System.out.print(" " + x);
-        x++;
+        {
+            System.out.print(" " + x);
+            x++;
+        }
         if (x <= 10) return metodo_1(x);
         return new Object[] { x };
     }

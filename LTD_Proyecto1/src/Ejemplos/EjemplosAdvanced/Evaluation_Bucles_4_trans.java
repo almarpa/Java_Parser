@@ -1,4 +1,4 @@
-package EjemplosAdvanced;
+package Ejemplos.EjemplosAdvanced;
 
 public class Evaluation_Bucles_4_trans {
 
@@ -21,22 +21,26 @@ public class Evaluation_Bucles_4_trans {
     }
 
     public static Object[] metodo_1(String[] fruits, String[] animals, int x) {
-        System.out.println(" " + x);
-        for (String fruit : fruits) {
-            System.out.println(fruit);
-            for (String animal : animals) {
-                System.out.println(animal);
+        {
+            System.out.println(" " + x);
+            for (String fruit : fruits) {
+                System.out.println(fruit);
+                for (String animal : animals) {
+                    System.out.println(animal);
+                }
             }
+            x++;
         }
-        x++;
         if (x <= 3) return metodo_1(fruits, animals, x);
         return new Object[] { fruits, animals, x };
     }
 
     public static Object[] metodo_2(String[] animals, int x) {
-        for (String animal : animals) {
-            System.out.println(animal);
-            x++;
+        {
+            for (String animal : animals) {
+                System.out.println(animal);
+                x++;
+            }
         }
         if (x <= 6) return metodo_2(animals, x);
         return new Object[] { animals, x };

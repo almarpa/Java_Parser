@@ -90,7 +90,7 @@ public class Visitador extends ModifierVisitorAdapter<Object>
 		BlockStmt blockStmt = new BlockStmt();
 		List<Statement> statements = new LinkedList<Statement>();
 		statements.add(doStmt.getBody());
-		statements.add(whileToIf(doStmt,args));
+		statements.add(oldWhile(doStmt,args));
 
 		blockStmt.setStmts(statements);
 
@@ -102,21 +102,23 @@ public class Visitador extends ModifierVisitorAdapter<Object>
 	 */	
 	public Node visit(WhileStmt whileStmt, Object args){
 		
-		return whileToIf(whileStmt, args);
+		return oldWhile(whileStmt, args);
 	}
 	
-	public IfStmt whileToIf(Statement stmt, Object args)
+	
+	public IfStmt oldWhile(Statement stmt, Object args)
 	{
 		/**************************/
 		/******** LLAMADOR ********/
 		/**************************/		
 		// Creamos un objeto Loop que sirve para examinar bucles
 		Loop loop = null;
-		if(stmt instanceof DoStmt) {
-			loop = new Do(null, null, stmt);
-		}else {
+		if(stmt instanceof WhileStmt) {
 			loop = new While(null, null, stmt);
+		}else {
+			loop = new Do(null, null, stmt);
 		}
+		
 		// El objeto Loop nos calcula la lista de variables declaradas en el método y usadas en el bucle (la intersección)
 		List<Variable> variables = loop.getUsedVariables(methodDeclaration);
 		// Creamos un objeto LoopVariables que sirve para convertir la lista de variables en lista de argumentos y parámetros
@@ -229,12 +231,13 @@ public class Visitador extends ModifierVisitorAdapter<Object>
 		
 		//Creamos una lista de statements y la rellenamos
 		List<Statement> cuerpoMetodoStmts = new LinkedList<Statement>();
-		if(stmt instanceof DoStmt) {
-			DoStmt doStmt = (DoStmt) stmt;
-			cuerpoMetodoStmts.add(doStmt.getBody()); 	
-		} else {
+		if(stmt instanceof WhileStmt) {
 			WhileStmt whileStmt = (WhileStmt) stmt;
 			cuerpoMetodoStmts.add(whileStmt.getBody()); 
+		} else {
+			DoStmt doStmt = (DoStmt) stmt;
+			cuerpoMetodoStmts.add(doStmt.getBody()); 
+			
 		}		
 		cuerpoMetodoStmts.add(ifRecursivo);
 		cuerpoMetodoStmts.add(returnMetodo);
@@ -259,7 +262,7 @@ public class Visitador extends ModifierVisitorAdapter<Object>
 	{
 		if (!(type instanceof PrimitiveType))
 			return type;
-
+			
 		PrimitiveType primitiveType = (PrimitiveType) type;
 		String primitiveName = primitiveType.getType().name();
 		String wrapperName = primitiveName;

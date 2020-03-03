@@ -1,4 +1,4 @@
-package EjemplosBasic;
+package Ejemplos.EjemplosBasic;
 
 public class Ejemplo_Bucles_4_trans {
 
@@ -32,15 +32,19 @@ public class Ejemplo_Bucles_4_trans {
     }
 
     public static Object[] metodo_1(int x) {
-        System.out.println(x);
-        x++;
+        {
+            System.out.println(x);
+            x++;
+        }
         if (x < 10) return metodo_1(x);
         return new Object[] { x };
     }
 
     public static Object[] metodo_2(int suma, int y) {
-        suma += y;
-        y++;
+        {
+            suma += y;
+            y++;
+        }
         if (y < 10) return metodo_2(suma, y);
         return new Object[] { suma, y };
     }

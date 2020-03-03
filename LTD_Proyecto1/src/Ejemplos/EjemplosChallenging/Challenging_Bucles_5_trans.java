@@ -1,4 +1,4 @@
-package EjemplosChallenging;
+package Ejemplos.EjemplosChallenging;
 
 public class Challenging_Bucles_5_trans {
 
@@ -17,9 +17,11 @@ public class Challenging_Bucles_5_trans {
     }
 
     public static Object[] metodo_1(int x) {
-        x++;
-        if (x < 10) continue;
-        x++;
+        {
+            x++;
+            if (x < 10) continue;
+            x++;
+        }
         if (x <= 10) return metodo_1(x);
         return new Object[] { x };
     }

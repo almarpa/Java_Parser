@@ -1,4 +1,4 @@
-package EjemplosAdvanced;
+package Ejemplos.EjemplosAdvanced;
 
 public class Evaluation_Bucles_1_trans {
 
@@ -17,7 +17,9 @@ public class Evaluation_Bucles_1_trans {
     }
 
     public static Object[] metodo_1(int x) {
-        x++;
+        {
+            x++;
+        }
         if (x <= 10) return metodo_1(x);
         return new Object[] { x };
     }

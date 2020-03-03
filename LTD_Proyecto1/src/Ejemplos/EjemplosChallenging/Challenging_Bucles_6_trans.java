@@ -1,4 +1,4 @@
-package EjemplosChallenging;
+package Ejemplos.EjemplosChallenging;
 
 public class Challenging_Bucles_6_trans {
 
@@ -15,14 +15,16 @@ public class Challenging_Bucles_6_trans {
                 x = (Integer) result[0];
             }
         } catch (Exception E) {
-            System.out.println("Ha habido una excepción");
+            System.out.println("Ha habido una excepcion");
         }
         return 42;
     }
 
     public static Object[] metodo_1(int x) {
-        x++;
-        x /= 0;
+        {
+            x++;
+            x /= 0;
+        }
         if (x <= 10) return metodo_1(x);
         return new Object[] { x };
     }

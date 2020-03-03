@@ -1,4 +1,4 @@
-package EjemplosAdvanced;
+package Ejemplos.EjemplosAdvanced;
 
 
 // Esta clase tiene un bucle en un método que se llama desde "main"
