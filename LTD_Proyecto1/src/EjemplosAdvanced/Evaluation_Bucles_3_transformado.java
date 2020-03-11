@@ -10,7 +10,7 @@ public class Evaluation_Bucles_3 {
         }
     }
 
-    public static Object[] metodo_1(int x) {
+    public static Object[] metodo_1(int x) throws Exception {
         {
             System.out.println("1");
             if (x > 50) {
@@ -32,19 +32,16 @@ public class Evaluation_Bucles_3 {
                 }
             }
         }
-        if (x > 0) {
-            return metodo_1(x);
-        }
+        if (x > 0) return metodo_1(x);
         return new Object[] { x };
     }
 
-    public static Object[] metodo_2(int x) {
+    public static Object[] metodo_2(int x) throws Exception {
         {
             x--;
             System.out.println("6");
             Exception e = new ArrayIndexOutOfBoundsException();
             throw e;
         }
-        return new Object[] { x };
     }
 }

@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import iter2rec.transformation.loop.Do;
+import iter2rec.transformation.loop.For;
 import iter2rec.transformation.loop.Loop;
 import iter2rec.transformation.loop.While;
 import iter2rec.transformation.variable.LoopVariables;
@@ -25,9 +26,11 @@ import japa.parser.ast.expr.VariableDeclarationExpr;
 import japa.parser.ast.stmt.BlockStmt;
 import japa.parser.ast.stmt.DoStmt;
 import japa.parser.ast.stmt.ExpressionStmt;
+import japa.parser.ast.stmt.ForStmt;
 import japa.parser.ast.stmt.IfStmt;
 import japa.parser.ast.stmt.ReturnStmt;
 import japa.parser.ast.stmt.Statement;
+import japa.parser.ast.stmt.ThrowStmt;
 import japa.parser.ast.stmt.WhileStmt;
 import japa.parser.ast.type.ClassOrInterfaceType;
 import japa.parser.ast.type.PrimitiveType;
@@ -83,6 +86,26 @@ public class Visitador extends ModifierVisitorAdapter<Object>
 	}
 	
 	/**
+	 * Visitador de sentencias for
+	 */
+	public Node visit(ForStmt forStmt, Object args) 
+	{
+		BlockStmt blockStmt = new BlockStmt();
+		List<Statement> statements = new LinkedList<Statement>();
+		
+		List<Expression> auxList = forStmt.getInit();
+		ExpressionStmt expression = new ExpressionStmt();
+		for(int i = 0; i<auxList.size(); i++) {
+			expression.setExpression(auxList.get(i));
+			statements.add(expression);
+		}
+		statements.add(ifRecursivo(forStmt,args));
+		blockStmt.setStmts(statements);
+
+		return blockStmt;
+	}
+	
+	/**
 	 * Visitador de sentencias DO WHILE
 	 */
 	public Node visit(DoStmt doStmt, Object args) 
@@ -90,10 +113,10 @@ public class Visitador extends ModifierVisitorAdapter<Object>
 		BlockStmt blockStmt = new BlockStmt();
 		List<Statement> statements = new LinkedList<Statement>();
 		statements.add(doStmt.getBody());
-		statements.add(oldWhile(doStmt,args));
+		statements.add(ifRecursivo(doStmt,args));
 
 		blockStmt.setStmts(statements);
-
+		
 		return blockStmt;
 	}
 	
@@ -102,11 +125,11 @@ public class Visitador extends ModifierVisitorAdapter<Object>
 	 */	
 	public Node visit(WhileStmt whileStmt, Object args){
 		
-		return oldWhile(whileStmt, args);
+		return ifRecursivo(whileStmt, args);
 	}
 	
 	
-	public IfStmt oldWhile(Statement stmt, Object args)
+	public IfStmt ifRecursivo(Statement stmt, Object args)
 	{
 		/**************************/
 		/******** LLAMADOR ********/
@@ -115,8 +138,10 @@ public class Visitador extends ModifierVisitorAdapter<Object>
 		Loop loop = null;
 		if(stmt instanceof WhileStmt) {
 			loop = new While(null, null, stmt);
-		}else {
+		}else if(stmt instanceof DoStmt){
 			loop = new Do(null, null, stmt);
+		}else {
+			loop = new For(null,null,stmt);
 		}
 		
 		// El objeto Loop nos calcula la lista de variables declaradas en el mŽtodo y usadas en el bucle (la intersecci—n)
@@ -165,9 +190,12 @@ public class Visitador extends ModifierVisitorAdapter<Object>
 		if(stmt instanceof DoStmt) {
 			DoStmt doStmt = (DoStmt) stmt;
 			condition = doStmt.getCondition();
-		} else {
+		} else if(stmt instanceof WhileStmt){
 			WhileStmt whileStmt = (WhileStmt) stmt;
 			condition = whileStmt.getCondition();
+		}else {
+			ForStmt forStmt = (ForStmt) stmt;
+			condition = forStmt.getCompare();
 		}
 		newIf.setCondition(condition);
 		
@@ -214,7 +242,7 @@ public class Visitador extends ModifierVisitorAdapter<Object>
 		//Creamos el If recursivo 
 		IfStmt ifRecursivo = new IfStmt();
 		ifRecursivo.setCondition(condition);
-		ifRecursivo.setThenStmt(returnIf); //TODO
+		ifRecursivo.setThenStmt(returnIf);
 		
 		//Return Stmt Method
 		ReturnStmt returnMetodo = new ReturnStmt();
@@ -234,11 +262,47 @@ public class Visitador extends ModifierVisitorAdapter<Object>
 		if(stmt instanceof WhileStmt) {
 			WhileStmt whileStmt = (WhileStmt) stmt;
 			cuerpoMetodoStmts.add(whileStmt.getBody()); 
-		} else {
+			
+			//Bloque y lista auxiliar para tratar la excepción
+			/*
+			ExpressionStmt block_stmt = (ExpressionStmt) whileStmt.getBody();
+			
+			methodDeclaration2.setThrows(methodDeclaration.getThrows());
+			
+			for(int i = 0; i < block_stmt.getStmts().size(); i++) {
+				if(block_stmt.getStmts().get(i) instanceof ThrowStmt) {
+					
+					if(block_stmt.getStmts().get(block_stmt.getStmts().size()-1) instanceof ThrowStmt){
+						cuerpoMetodo.setStmts(cuerpoMetodoStmts);
+						methodDeclaration2.setBody(cuerpoMetodo);
+						
+						//Añadimos el nuevo metodo a la clase
+						this.classDeclaration.getMembers().add(methodDeclaration2);
+						
+						//Aumentamos el contador para el nombre de los metodos
+						contador++;
+
+						return newIf;			
+					}
+				}
+			}*/
+
+			
+		} else if (stmt instanceof DoStmt){
 			DoStmt doStmt = (DoStmt) stmt;
 			cuerpoMetodoStmts.add(doStmt.getBody()); 
-			
-		}		
+		}	else {
+			ForStmt forStmt = (ForStmt) stmt;
+			cuerpoMetodoStmts.add(forStmt.getBody()); 
+			//Obtenemos el incremento o update del bucle For
+			List<Expression> auxList = forStmt.getUpdate();
+			ExpressionStmt expression = new ExpressionStmt();
+			for(int i = 0; i<auxList.size(); i++) {
+				expression.setExpression(auxList.get(i));
+				cuerpoMetodoStmts.add(expression);
+			}
+		}
+	
 		cuerpoMetodoStmts.add(ifRecursivo);
 		cuerpoMetodoStmts.add(returnMetodo);
 		
